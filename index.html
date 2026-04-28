@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FCT — IES Cantillana</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #181c26;
+    --surface2: #1f2433;
+    --border: #2a3045;
+    --accent: #4f8ef7;
+    --accent2: #7c5cfc;
+    --green: #3ecf8e;
+    --yellow: #f5a623;
+    --red: #f04438;
+    --text: #e8eaf2;
+    --muted: #7a8298;
+    --tag-bg: #1a2240;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* SIDEBAR */
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar {
+    width: 220px; background: var(--surface); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; padding: 24px 0; position: fixed; height: 100vh; z-index: 10;
+  }
+  .logo { padding: 0 20px 24px; border-bottom: 1px solid var(--border); }
+  .logo-badge {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 11px;
+    padding: 4px 8px; border-radius: 6px; display: inline-block; margin-bottom: 8px; letter-spacing: 1px;
+  }
+  .logo h2 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; line-height: 1.3; color: var(--text); }
+  .logo p { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .nav { padding: 16px 12px; flex: 1; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px;
+    cursor: pointer; font-size: 13px; color: var(--muted); transition: all 0.15s; margin-bottom: 2px;
+    border: none; background: none; width: 100%; text-align: left;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: var(--tag-bg); color: var(--accent); }
+  .nav-item .icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+  .stats-bar { padding: 16px; border-top: 1px solid var(--border); }
+  .stat-mini { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+  .stat-mini span:last-child { color: var(--text); font-weight: 500; }
+
+  /* MAIN */
+  .main { margin-left: 220px; flex: 1; padding: 28px 32px; }
+  .page-header { margin-bottom: 24px; }
+  .page-header h1 { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; }
+  .page-header p { color: var(--muted); font-size: 13px; margin-top: 4px; }
+
+  /* TOOLBAR */
+  .toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+  .search-box {
+    flex: 1; min-width: 200px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 14px; font-size: 13px; color: var(--text);
+    font-family: 'DM Sans', sans-serif; outline: none;
+  }
+  .search-box:focus { border-color: var(--accent); }
+  .search-box::placeholder { color: var(--muted); }
+  .filter-btn {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 14px; font-size: 13px; color: var(--text); cursor: pointer;
+    font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.15s;
+  }
+  .filter-btn:focus, .filter-btn:hover { border-color: var(--accent); }
+  .btn-add {
+    background: var(--accent); border: none; border-radius: 8px; padding: 8px 16px;
+    font-size: 13px; color: #fff; cursor: pointer; font-family: 'DM Sans', sans-serif;
+    font-weight: 600; transition: opacity 0.15s; display: flex; align-items: center; gap: 6px;
+  }
+  .btn-add:hover { opacity: 0.85; }
+
+  /* TABLE */
+  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead tr { background: var(--surface2); }
+  th { padding: 10px 14px; text-align: left; font-weight: 600; font-size: 11px; letter-spacing: 0.5px; color: var(--muted); text-transform: uppercase; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { padding: 11px 14px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: rgba(79,142,247,0.04); }
+  .td-name { font-weight: 500; }
+  .td-muted { color: var(--muted); font-size: 12px; }
+
+  /* BADGES */
+  .badge {
+    display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 4px;
+    font-size: 11px; font-weight: 600; white-space: nowrap;
+  }
+  .badge-green { background: rgba(62,207,142,0.12); color: var(--green); }
+  .badge-yellow { background: rgba(245,166,35,0.12); color: var(--yellow); }
+  .badge-red { background: rgba(240,68,56,0.12); color: var(--red); }
+  .badge-blue { background: rgba(79,142,247,0.12); color: var(--accent); }
+  .badge-purple { background: rgba(124,92,252,0.12); color: var(--accent2); }
+  .badge-gray { background: var(--surface2); color: var(--muted); }
+  .tick { color: var(--green); font-size: 14px; }
+  .dash { color: var(--border); }
+
+  /* CICLO BADGE */
+  .ciclo-1 { background: rgba(79,142,247,0.12); color: var(--accent); }
+  .ciclo-2 { background: rgba(124,92,252,0.12); color: var(--accent2); }
+
+  /* SCORE */
+  .score { display: flex; align-items: center; gap: 4px; }
+  .score-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+  /* CARDS (dashboard) */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; margin-bottom: 24px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px; transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--accent); }
+  .card-icon { font-size: 22px; margin-bottom: 10px; }
+  .card-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; margin-bottom: 2px; }
+  .card-label { font-size: 12px; color: var(--muted); }
+  .card-sub { font-size: 11px; color: var(--green); margin-top: 4px; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100;
+    align-items: center; justify-content: center; backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 28px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto;
+  }
+  .modal h3 { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; margin-bottom: 20px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-group label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .form-group input, .form-group select {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 7px;
+    padding: 8px 12px; font-size: 13px; color: var(--text); font-family: 'DM Sans', sans-serif; outline: none;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: var(--accent); }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+  .btn-cancel {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 16px; font-size: 13px; color: var(--text); cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn-save {
+    background: var(--accent); border: none; border-radius: 8px; padding: 8px 18px;
+    font-size: 13px; color: #fff; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600;
+  }
+  .btn-delete {
+    background: rgba(240,68,56,0.12); border: 1px solid rgba(240,68,56,0.3); border-radius: 8px;
+    padding: 8px 14px; font-size: 13px; color: var(--red); cursor: pointer;
+    font-family: 'DM Sans', sans-serif; margin-right: auto;
+  }
+
+  /* ACTION BTNS in table */
+  .btn-action {
+    background: none; border: none; cursor: pointer; color: var(--muted);
+    font-size: 14px; padding: 4px 6px; border-radius: 5px; transition: all 0.15s;
+  }
+  .btn-action:hover { background: var(--surface2); color: var(--text); }
+
+  /* EMPTY */
+  .empty { text-align: center; padding: 48px; color: var(--muted); }
+  .empty-icon { font-size: 36px; margin-bottom: 12px; }
+  .empty p { font-size: 14px; }
+
+  /* SECTION TABS (tutores) */
+  .section-head { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin: 20px 0 10px; }
+
+  /* Progress bar */
+  .prog-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; width: 80px; }
+  .prog-fill { height: 100%; border-radius: 3px; background: var(--accent); }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 768px) {
+    .sidebar { width: 56px; }
+    .sidebar .logo, .sidebar .nav-item span, .sidebar .stats-bar { display: none; }
+    .main { margin-left: 56px; padding: 16px; }
+    .form-grid { grid-template-columns: 1fr; }
+  }
+
+  /* PRINT BUTTON */
+  .btn-print {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 14px; font-size: 13px; color: var(--muted); cursor: pointer;
+    font-family: 'DM Sans', sans-serif; display: flex; align-items: center; gap: 6px;
+    transition: all 0.15s;
+  }
+  .btn-print:hover { border-color: var(--accent); color: var(--text); }
+
+  /* PRINT STYLES */
+  @media print {
+    @page { margin: 15mm 12mm; size: A4 landscape; }
+    body { background: #fff !important; color: #111 !important; font-family: Arial, sans-serif; font-size: 10px; }
+    .sidebar, .toolbar, .modal-overlay, .btn-action, .btn-add, .btn-print { display: none !important; }
+    .main { margin-left: 0 !important; padding: 0 !important; }
+    .layout { display: block !important; }
+    [id^="page-"] { display: none !important; }
+    #print-section { display: block !important; }
+    .print-header { margin-bottom: 14px; border-bottom: 2px solid #1a56db; padding-bottom: 8px; }
+    .print-header h1 { font-size: 16px; color: #1a56db; margin-bottom: 2px; }
+    .print-header p { font-size: 10px; color: #555; }
+    .print-meta { display: flex; gap: 20px; margin-bottom: 10px; font-size: 9px; color: #444; }
+    .print-meta strong { color: #111; }
+    .print-table { width: 100%; border-collapse: collapse; font-size: 9px; }
+    .print-table th { background: #1a56db; color: #fff; padding: 5px 7px; text-align: left; font-weight: 700; font-size: 8px; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; }
+    .print-table td { padding: 5px 7px; border-bottom: 1px solid #e5e7eb; vertical-align: middle; }
+    .print-table tr:nth-child(even) td { background: #f8fafc; }
+    .print-table tr:last-child td { border-bottom: 2px solid #1a56db; }
+    .print-badge { display: inline-block; padding: 2px 5px; border-radius: 3px; font-size: 8px; font-weight: 700; }
+    .print-badge-green { background: #d1fae5; color: #065f46; }
+    .print-badge-blue { background: #dbeafe; color: #1e40af; }
+    .print-badge-yellow { background: #fef3c7; color: #92400e; }
+    .print-badge-red { background: #fee2e2; color: #991b1b; }
+    .print-badge-gray { background: #f3f4f6; color: #374151; }
+    .print-badge-purple { background: #ede9fe; color: #5b21b6; }
+    .print-footer { margin-top: 12px; font-size: 8px; color: #888; display: flex; justify-content: space-between; border-top: 1px solid #ddd; padding-top: 6px; }
+    .print-tick { color: #065f46; font-weight: 700; }
+    .print-dash { color: #ccc; }
+  }
+
+  #print-section { display: none; }
+
+  /* LOADING BAR */
+  #loading-bar {
+    display: none; position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 999;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    animation: loadingSlide 1.2s ease-in-out infinite;
+  }
+  @keyframes loadingSlide { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
+
+  /* TOAST */
+  #toast {
+    position: fixed; bottom: 24px; right: 24px; padding: 10px 18px; border-radius: 8px;
+    font-size: 13px; font-weight: 600; z-index: 9999; opacity: 0; pointer-events: none;
+    transform: translateY(8px); transition: all 0.25s;
+  }
+  #toast.show { opacity: 1; transform: translateY(0); }
+
+  /* BULK SELECTION */
+  .bulk-bar {
+    display: none; align-items: center; gap: 12px; background: var(--tag-bg);
+    border: 1px solid var(--accent); border-radius: 8px; padding: 8px 14px;
+    margin-bottom: 10px; animation: slideDown 0.15s ease;
+  }
+  .bulk-bar.visible { display: flex; }
+  @keyframes slideDown { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+  .bulk-count { font-size: 13px; font-weight: 600; color: var(--accent); flex: 1; }
+  .btn-bulk-delete {
+    background: rgba(240,68,56,0.12); border: 1px solid rgba(240,68,56,0.3); border-radius: 7px;
+    padding: 6px 14px; font-size: 13px; color: var(--red); cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-weight: 600; display: flex; align-items: center; gap: 6px;
+    transition: all 0.15s;
+  }
+  .btn-bulk-delete:hover { background: rgba(240,68,56,0.2); }
+  .btn-bulk-cancel {
+    background: none; border: 1px solid var(--border); border-radius: 7px;
+    padding: 6px 12px; font-size: 13px; color: var(--muted); cursor: pointer;
+    font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+  }
+  .btn-bulk-cancel:hover { color: var(--text); border-color: var(--text); }
+
+  /* Checkbox column */
+  .cb-cell { width: 36px; text-align: center; }
+  input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; }
+  tr.selected td { background: rgba(79,142,247,0.07) !important; }
+</style>
+</head>
+<body>
+<div id="loading-bar"></div>
+<div id="toast"></div>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="logo">
+    <div class="logo-badge">FFEOE</div>
+    <h2>IES Cantillana</h2>
+    <p>FP Admin. y Gestión</p>
+  </div>
+  <div class="nav">
+    <button class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard">
+      <span class="icon">📊</span><span>Dashboard</span>
+    </button>
+    <button class="nav-item" onclick="showPage('empresas')" id="nav-empresas">
+      <span class="icon">🏢</span><span>Empresas</span>
+    </button>
+    <button class="nav-item" onclick="showPage('alumnos')" id="nav-alumnos">
+      <span class="icon">👨‍🎓</span><span>Alumnos</span>
+    </button>
+    <button class="nav-item" onclick="showPage('tutores')" id="nav-tutores">
+      <span class="icon">👩‍🏫</span><span>Tutores</span>
+    </button>
+    <button class="nav-item" onclick="showPage('asignacion')" id="nav-asignacion">
+      <span class="icon">📋</span><span>Asignación</span>
+    </button>
+    <button class="nav-item" onclick="showPage('sin-fct')" id="nav-sin-fct">
+      <span class="icon">🚫</span><span>Sin FCT</span>
+    </button>
+  </div>
+  <div class="stats-bar">
+    <div class="stat-mini"><span>Empresas activas</span><span id="stat-emp">—</span></div>
+    <div class="stat-mini"><span>Alumnos FCT</span><span id="stat-alum">—</span></div>
+    <div class="stat-mini"><span>Asignados</span><span id="stat-asig">—</span></div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- DASHBOARD -->
+  <div id="page-dashboard">
+    <div class="page-header">
+      <h1>Dashboard FCT</h1>
+      <p>Resumen general de la Formación en Centro de Trabajo</p>
+    </div>
+    <div class="cards" id="dashboard-cards"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div>
+        <div class="section-head">Estado de asignaciones</div>
+        <div class="table-wrap"><table id="dash-estado-table"></table></div>
+      </div>
+      <div>
+        <div class="section-head">Empresas por sector</div>
+        <div class="table-wrap"><table id="dash-sector-table"></table></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMPRESAS -->
+  <div id="page-empresas" class="hidden">
+    <div class="page-header">
+      <h1>🏢 Empresas colaboradoras</h1>
+      <p>Base de datos de empresas para FCT</p>
+    </div>
+    <div class="toolbar">
+      <input class="search-box" placeholder="Buscar empresa, sector, localidad…" oninput="filterTable('empresas',this.value)" />
+      <select class="filter-btn" onchange="filterEmpresasSector(this.value)">
+        <option value="">Todos los sectores</option>
+      </select>
+      <select class="filter-btn" onchange="filterEmpresasActiva(this.value)">
+        <option value="">Todas</option>
+        <option value="Sí">Solo activas</option>
+        <option value="No">Solo inactivas</option>
+      </select>
+      <button class="btn-add" onclick="openModal('empresa')">＋ Nueva empresa</button>
+      <button class="btn-print" onclick="printPage('empresas')">🖨️ Imprimir</button>
+    </div>
+    <div class="bulk-bar" id="bulk-bar-empresas">
+      <span class="bulk-count" id="bulk-count-empresas">0 seleccionadas</span>
+      <button class="btn-bulk-delete" onclick="bulkDelete('empresas')">🗑 Eliminar seleccionadas</button>
+      <button class="btn-bulk-cancel" onclick="clearSelection('empresas')">✕ Cancelar</button>
+    </div>
+    <div class="table-wrap">
+      <table id="empresas-table">
+        <thead><tr>
+          <th class="cb-cell"><input type="checkbox" id="cb-all-empresas" onchange="toggleAllEmpresas(this.checked)" title="Seleccionar todas"></th>
+          <th>#</th><th>Empresa</th><th>Sector</th><th>Localidad</th>
+          <th>Contacto</th><th>DNI contacto</th><th>Teléfono</th>
+          <th>1ºGDGMGA</th><th>2ºGDGMGA</th><th>1ºGDCSAF</th><th>2ºGDCSAF</th>
+          <th>Plazas</th><th>Contrat.</th><th>Activa</th><th>Asig.</th><th></th>
+        </tr></thead>
+        <tbody id="empresas-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ALUMNOS -->
+  <div id="page-alumnos" class="hidden">
+    <div class="page-header">
+      <h1>👨‍🎓 Alumnos en FCT</h1>
+      <p>Datos y preferencias de alumnos</p>
+    </div>
+    <div class="toolbar">
+      <input class="search-box" placeholder="Buscar alumno, ciclo, zona…" oninput="filterTable('alumnos',this.value)" />
+      <select class="filter-btn" onchange="filterAlumnosCiclo(this.value)">
+        <option value="">Todos los ciclos</option>
+        <option value="GDGMGA">GDGMGA</option>
+        <option value="GDCSAF">GDCSAF</option>
+      </select>
+      <select class="filter-btn" onchange="filterAlumnosFfeo(this.value)">
+        <option value="">FFEOE: todos</option>
+        <option value="Sí">FFEOE: Sí</option>
+        <option value="No">FFEOE: No</option>
+      </select>
+      <button class="btn-add" onclick="openModal('alumno')">＋ Nuevo alumno</button>
+      <button class="btn-print" onclick="printPage('alumnos')">🖨️ Imprimir</button>
+    </div>
+    <div class="bulk-bar" id="bulk-bar-alumnos">
+      <span class="bulk-count" id="bulk-count-alumnos">0 seleccionados</span>
+      <button class="btn-bulk-delete" onclick="bulkDelete('alumnos')">🗑 Eliminar seleccionados</button>
+      <button class="btn-bulk-cancel" onclick="clearSelection('alumnos')">✕ Cancelar</button>
+    </div>
+    <div class="table-wrap">
+      <table id="alumnos-table">
+        <thead><tr>
+          <th class="cb-cell"><input type="checkbox" id="cb-all-alumnos" onchange="toggleAllAlumnos(this.checked)" title="Seleccionar todos"></th>
+          <th>#</th><th>Alumno</th><th>Ciclo</th><th>Curso</th>
+          <th>FFEOE</th><th>Coche</th><th>Zona preferida</th>
+          <th>Actitud</th><th>Aptitud</th><th>Media</th>
+          <th>Aporta empresa</th><th></th>
+        </tr></thead>
+        <tbody id="alumnos-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TUTORES -->
+  <div id="page-tutores" class="hidden">
+    <div class="page-header">
+      <h1>👩‍🏫 Tutores docentes</h1>
+      <p>Horas lectivas y reparto proporcional de alumnos</p>
+    </div>
+    <div class="toolbar">
+      <button class="btn-add" onclick="openModal('tutor')">＋ Nuevo tutor</button>
+    </div>
+    <div class="section-head">SECCIÓN A — Horas lectivas por tutor</div>
+    <div class="table-wrap" style="margin-bottom:20px">
+      <table id="tutores-table">
+        <thead><tr>
+          <th>#</th><th>Tutor docente</th>
+          <th>1º GDGMGA (h)</th><th>2º GDGMGA (h)</th>
+          <th>1º GDCSAF (h)</th><th>2º GDCSAF (h)</th>
+          <th>Total horas</th><th>% total</th><th></th>
+        </tr></thead>
+        <tbody id="tutores-body"></tbody>
+      </table>
+    </div>
+    <div class="section-head">SECCIÓN B — Alumnos que corresponden a cada tutor (proporcional a horas)</div>
+    <div class="table-wrap" style="margin-bottom:20px">
+      <table id="tutores-alumnos-table"></table>
+    </div>
+    <div class="section-head">SECCIÓN C — Contador de asignaciones por tutor y ciclo/curso</div>
+    <div class="table-wrap">
+      <table id="tutores-contador-table"><tbody id="tutores-contador-body"></tbody></table>
+    </div>
+  </div>
+
+  <!-- ASIGNACIÓN -->
+  <div id="page-asignacion" class="hidden">
+    <div class="page-header">
+      <h1>📋 Asignación de prácticas</h1>
+      <p>FCT y seguimiento de acuerdos</p>
+    </div>
+    <div class="toolbar">
+      <input class="search-box" placeholder="Buscar alumno o empresa…" oninput="filterTable('asignacion',this.value)" />
+      <select class="filter-btn" onchange="filterAsigEstado(this.value)" id="filter-estado">
+        <option value="">Todos los estados</option>
+        <option value="Empresa no confirmada">No confirmada</option>
+        <option value="Empresa confirmada">Confirmada</option>
+        <option value="Acuerdo firmado">Firmado</option>
+        <option value="En prácticas">En prácticas</option>
+        <option value="Prácticas finalizadas">Finalizado</option>
+        <option value="Baja">Baja</option>
+      </select>
+      <select class="filter-btn" onchange="filterAsigTutor(this.value)" id="filter-tutor-doc">
+        <option value="">Todos los tutores</option>
+      </select>
+      <button class="btn-print" onclick="printPage('asignacion')">🖨️ Imprimir</button>
+    </div>
+    <div class="table-wrap">
+      <table id="asignacion-table">
+        <thead><tr>
+          <th>#</th><th>Alumno</th><th>Ciclo / Curso</th>
+          <th>Empresa asignada</th><th>Tutor docente</th>
+          <th>Tutor laboral</th><th>DNI tutor lab.</th>
+          <th>Validación</th><th>Estado</th><th></th>
+        </tr></thead>
+        <tbody id="asignacion-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SIN FCT -->
+  <div id="page-sin-fct" class="hidden">
+    <div class="page-header">
+      <h1>🚫 Alumnos sin FCT en empresa</h1>
+      <p>Alumnos que no realizan la formación en centro de trabajo</p>
+    </div>
+    <div class="toolbar">
+      <input class="search-box" placeholder="Buscar alumno…" oninput="filterTable('sinfct',this.value)" />
+      <button class="btn-add" onclick="openModal('sinfct')">＋ Añadir registro</button>
+    </div>
+    <div class="table-wrap">
+      <table id="sinfct-table">
+        <thead><tr>
+          <th>#</th><th>Alumno</th><th>Ciclo</th><th>Curso</th>
+          <th>Motivo</th><th>Fecha comunicación</th><th>Documentación</th><th>Observaciones</th><th></th>
+        </tr></thead>
+        <tbody id="sinfct-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PRINT SECTION (only visible when printing) -->
+  <div id="print-section"></div>
+
+</main>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<script>
+// ─────────────────────────── SUPABASE ───────────────────────────
+const SUPA_URL = 'https://bybgomwzijwqsaacrlaa.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ5YmdvbXd6aWp3cXNhYWNybGFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MTY3NzQsImV4cCI6MjA5MDk5Mjc3NH0.CNXmYZrM0EO-EnZxDzFShuQ2FeUnqRqrlmUGFQx1Q9g';
+const headers = { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' };
+
+async function sbGet(table) {
+  const r = await fetch(`${SUPA_URL}/rest/v1/${table}?order=id`, { headers });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function sbInsert(table, obj) {
+  const r = await fetch(`${SUPA_URL}/rest/v1/${table}`, { method:'POST', headers, body: JSON.stringify(obj) });
+  if (!r.ok) throw new Error(await r.text());
+  const rows = await r.json(); return rows[0];
+}
+async function sbUpdate(table, id, obj) {
+  const r = await fetch(`${SUPA_URL}/rest/v1/${table}?id=eq.${id}`, { method:'PATCH', headers, body: JSON.stringify(obj) });
+  if (!r.ok) throw new Error(await r.text());
+  const rows = await r.json(); return rows[0];
+}
+async function sbDelete(table, id) {
+  const r = await fetch(`${SUPA_URL}/rest/v1/${table}?id=eq.${id}`, { method:'DELETE', headers });
+  if (!r.ok) throw new Error(await r.text());
+}
+async function sbDeleteMany(table, ids) {
+  const r = await fetch(`${SUPA_URL}/rest/v1/${table}?id=in.(${ids.join(',')})`, { method:'DELETE', headers });
+  if (!r.ok) throw new Error(await r.text());
+}
+
+function setLoading(on) {
+  document.getElementById('loading-bar').style.display = on ? 'block' : 'none';
+}
+function toast(msg, type='ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = type === 'ok' ? 'var(--green)' : 'var(--red)';
+  t.style.color = '#fff';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ─────────────────────────── DATA ───────────────────────────
+let data = { empresas:[], alumnos:[], tutores:[], asignacion:[], sinfct:[] };
+
+async function loadAll() {
+  setLoading(true);
+  try {
+    const [empresas, alumnos, tutores, asignacion, sinfct] = await Promise.all([
+      sbGet('empresas'), sbGet('alumnos'), sbGet('tutores'), sbGet('asignacion'), sbGet('sinfct')
+    ]);
+    data.empresas   = empresas   || [];
+    data.alumnos    = alumnos    || [];
+    data.tutores    = tutores    || [];
+    data.asignacion = asignacion || [];
+    data.sinfct     = sinfct     || [];
+  } catch(e) {
+    toast('Error al cargar datos: ' + e.message, 'err');
+  } finally {
+    setLoading(false);
+  }
+}
+
+let filters = { empresas:{search:'',sector:'',activa:''}, alumnos:{search:'',ciclo:'',ffeoe:''}, asignacion:{search:'',estado:'',tutor:''}, sinfct:{search:''} };
+let editId = null; let editType = null;
+let selectedEmpresas = new Set();
+let selectedAlumnos = new Set();
+
+// ─────────────────────────── NAVIGATION ───────────────────────────
+function showPage(name) {
+  document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.remove('hidden');
+  document.getElementById('nav-' + name).classList.add('active');
+  // Clear bulk selections on page change
+  selectedEmpresas.clear(); selectedAlumnos.clear();
+  render(name);
+}
+
+// ─────────────────────────── RENDER ───────────────────────────
+function render(page) {
+  if (page === 'dashboard') renderDashboard();
+  if (page === 'empresas') renderEmpresas();
+  if (page === 'alumnos') renderAlumnos();
+  if (page === 'tutores') renderTutores();
+  if (page === 'asignacion') renderAsignacion();
+  if (page === 'sin-fct') renderSinfct();
+  updateSidebar();
+}
+
+function updateSidebar() {
+  document.getElementById('stat-emp').textContent = data.empresas.filter(e => e.activa === 'Sí').length;
+  document.getElementById('stat-alum').textContent = data.alumnos.filter(a => a.ffeoe === 'Sí').length;
+  document.getElementById('stat-asig').textContent = data.asignacion.filter(a => a.empresa && a.empresa !== '').length;
+}
+
+// ── DASHBOARD ──
+function renderDashboard() {
+  const totalEmp = data.empresas.filter(e => e.activa === 'Sí').length;
+  const totalAlum = data.alumnos.length;
+  const alumFCT = data.alumnos.filter(a => a.ffeoe === 'Sí').length;
+  const asignados = data.asignacion.filter(a => a.empresa && a.empresa !== '').length;
+  const plazasTotal = data.empresas.reduce((s,e) => s + (parseInt(e.plazas)||0), 0);
+
+  document.getElementById('dashboard-cards').innerHTML = `
+    <div class="card"><div class="card-icon">🏢</div><div class="card-value" style="color:var(--accent)">${totalEmp}</div><div class="card-label">Empresas activas</div><div class="card-sub">+${data.empresas.length - totalEmp} inactivas</div></div>
+    <div class="card"><div class="card-icon">👨‍🎓</div><div class="card-value" style="color:var(--accent2)">${totalAlum}</div><div class="card-label">Alumnos totales</div><div class="card-sub">${alumFCT} en FCT</div></div>
+    <div class="card"><div class="card-icon">📋</div><div class="card-value" style="color:var(--green)">${asignados}</div><div class="card-label">Asignados</div><div class="card-sub">de ${alumFCT} en FCT</div></div>
+    <div class="card"><div class="card-icon">🏷</div><div class="card-value" style="color:var(--yellow)">${plazasTotal}</div><div class="card-label">Plazas disponibles</div><div class="card-sub">en empresas</div></div>
+    <div class="card"><div class="card-icon">👩‍🏫</div><div class="card-value">${data.tutores.length}</div><div class="card-label">Tutores docentes</div></div>
+    <div class="card"><div class="card-icon">🚫</div><div class="card-value" style="color:var(--red)">${data.sinfct.filter(s=>s.alumno).length}</div><div class="card-label">Sin FCT empresa</div></div>
+  `;
+
+  // Estado table
+  const estados = {};
+  data.asignacion.forEach(a => { estados[a.estado] = (estados[a.estado]||0)+1; });
+  let estadoHTML = '<thead><tr><th>Estado</th><th>Alumnos</th></tr></thead><tbody>';
+  Object.entries(estados).forEach(([e,n]) => { estadoHTML += `<tr><td>${estadoBadge(e)}</td><td style="font-weight:600">${n}</td></tr>`; });
+  estadoHTML += '</tbody>';
+  document.getElementById('dash-estado-table').innerHTML = estadoHTML;
+
+  // Sector table
+  const sectores = {};
+  data.empresas.filter(e=>e.activa==='Sí').forEach(e => { sectores[e.sector]=(sectores[e.sector]||0)+1; });
+  let sectHTML = '<thead><tr><th>Sector</th><th>Empresas</th></tr></thead><tbody>';
+  Object.entries(sectores).sort((a,b)=>b[1]-a[1]).forEach(([s,n]) => { sectHTML += `<tr><td><span class="badge badge-blue">${s}</span></td><td>${n}</td></tr>`; });
+  sectHTML += '</tbody>';
+  document.getElementById('dash-sector-table').innerHTML = sectHTML;
+}
+
+// ── EMPRESAS ──
+function renderEmpresas() {
+  // Populate sector filter
+  const sectors = [...new Set(data.empresas.map(e=>e.sector))].sort();
+  const sel = document.querySelector('#page-empresas select');
+  sel.innerHTML = '<option value="">Todos los sectores</option>' + sectors.map(s=>`<option value="${s}">${s}</option>`).join('');
+
+  const f = filters.empresas;
+  let rows = data.empresas.filter(e => {
+    const q = f.search.toLowerCase();
+    const matchS = !q || e.nombre.toLowerCase().includes(q) || e.sector.toLowerCase().includes(q) || e.localidad.toLowerCase().includes(q);
+    const matchSec = !f.sector || e.sector === f.sector;
+    const matchAct = !f.activa || e.activa === f.activa;
+    return matchS && matchSec && matchAct;
+  });
+
+  const tbody = document.getElementById('empresas-body');
+  if (!rows.length) { tbody.innerHTML = `<tr><td colspan="17"><div class="empty"><div class="empty-icon">🔍</div><p>No se encontraron empresas</p></div></td></tr>`; return; }
+
+  tbody.innerHTML = rows.map(e => `
+    <tr id="row-empresa-${e.id}" class="${selectedEmpresas.has(e.id)?'selected':''}">
+      <td class="cb-cell"><input type="checkbox" data-id="${e.id}" ${selectedEmpresas.has(e.id)?'checked':''} onchange="toggleSelectEmpresa(${e.id}, this.checked)"></td>
+      <td class="td-muted">${e.id}</td>
+      <td><div class="td-name">${e.nombre}</div><div class="td-muted">${e.cif}</div></td>
+      <td><span class="badge badge-blue">${e.sector}</span></td>
+      <td>${e.localidad}</td>
+      <td><div>${e.contacto}</div><div class="td-muted">${e.email||''}</div></td>
+      <td class="td-muted">${e.dni_contacto||'—'}</td>
+      <td class="td-muted">${e.tel||''}</td>
+      <td class="td-muted" style="text-align:center">${e.gdgmga1?'<span class="tick">✔</span>':'<span class="dash">—</span>'}</td>
+      <td class="td-muted" style="text-align:center">${e.gdgmga2?'<span class="tick">✔</span>':'<span class="dash">—</span>'}</td>
+      <td class="td-muted" style="text-align:center">${e.gdcsaf1?'<span class="tick">✔</span>':'<span class="dash">—</span>'}</td>
+      <td class="td-muted" style="text-align:center">${e.gdcsaf2?'<span class="tick">✔</span>':'<span class="dash">—</span>'}</td>
+      <td style="text-align:center;font-weight:600">${e.plazas}</td>
+      <td>${contratBadge(e.contrat)}</td>
+      <td>${e.activa==='Sí'?'<span class="badge badge-green">Activa</span>':'<span class="badge badge-red">Inactiva</span>'}</td>
+      <td style="text-align:center;font-weight:600;color:var(--accent)">${e.asignados||0}</td>
+      <td style="white-space:nowrap">
+        <button class="btn-action" onclick="editItem('empresa',${e.id})" title="Editar">✏️</button>
+        <button class="btn-action" style="color:var(--red)" onclick="deleteItemDirect('empresa',${e.id})" title="Eliminar">🗑</button>
+      </td>
+    </tr>
+  `).join('');
+
+  // Sync "select all" checkbox state
+  const cbAll = document.getElementById('cb-all-empresas');
+  if (cbAll) cbAll.checked = rows.length > 0 && rows.every(e => selectedEmpresas.has(e.id));
+  updateBulkBar('empresas');
+}
+
+// ── ALUMNOS ──
+function renderAlumnos() {
+  const f = filters.alumnos;
+  let rows = data.alumnos.filter(a => {
+    const q = f.search.toLowerCase();
+    const matchS = !q || a.nombre.toLowerCase().includes(q) || a.zona.toLowerCase().includes(q) || a.ciclo.toLowerCase().includes(q);
+    const matchC = !f.ciclo || a.ciclo === f.ciclo;
+    const matchF = !f.ffeoe || a.ffeoe === f.ffeoe;
+    return matchS && matchC && matchF;
+  });
+
+  const tbody = document.getElementById('alumnos-body');
+  if (!rows.length) { tbody.innerHTML = `<tr><td colspan="13"><div class="empty"><div class="empty-icon">🔍</div><p>No se encontraron alumnos</p></div></td></tr>`; return; }
+
+  tbody.innerHTML = rows.map(a => `
+    <tr id="row-alumno-${a.id}" class="${selectedAlumnos.has(a.id)?'selected':''}">
+      <td class="cb-cell"><input type="checkbox" data-id="${a.id}" ${selectedAlumnos.has(a.id)?'checked':''} onchange="toggleSelectAlumno(${a.id}, this.checked)"></td>
+      <td class="td-muted">${a.id}</td>
+      <td class="td-name">${a.nombre}</td>
+      <td><span class="badge ${a.ciclo==='GDGMGA'?'ciclo-1':'ciclo-2'}">${a.ciclo}</span></td>
+      <td>${a.curso}</td>
+      <td>${a.ffeoe==='Sí'?'<span class="badge badge-green">Sí</span>':'<span class="badge badge-gray">No</span>'}</td>
+      <td>${a.coche==='Sí'?'<span class="badge badge-blue">🚗 Sí</span>':'<span class="badge badge-gray">No</span>'}</td>
+      <td>${a.zona}</td>
+      <td>${scoreDots(a.actitud)}</td>
+      <td>${scoreDots(a.aptitud)}</td>
+      <td><strong>${a.media}</strong></td>
+      <td>${a.aporta==='Sí'?`<span class="badge badge-yellow">Sí — ${a.empresa_aportada||''}</span>`:'<span class="badge badge-gray">No</span>'}</td>
+      <td><button class="btn-action" onclick="editItem('alumno',${a.id})">✏️</button></td>
+    </tr>
+  `).join('');
+
+  // Sync "select all" checkbox state
+  const cbAll = document.getElementById('cb-all-alumnos');
+  if (cbAll) cbAll.checked = rows.length > 0 && rows.every(a => selectedAlumnos.has(a.id));
+  updateBulkBar('alumnos');
+}
+
+// ── TUTORES ──
+function renderTutores() {
+  const totalH = data.tutores.reduce((s,t) => s+(t.total||0), 0);
+  const tbody = document.getElementById('tutores-body');
+  tbody.innerHTML = data.tutores.map(t => {
+    const pct = totalH ? ((t.total/totalH)*100).toFixed(0) : 0;
+    const dualBadge = t.dual ? '<span class="badge badge-purple" style="margin-left:6px">⭐ Coord. Dual</span>' : '';
+    return `<tr>
+      <td class="td-muted">${t.id}</td>
+      <td class="td-name">${t.nombre}${dualBadge}</td>
+      <td class="td-muted" style="text-align:center">${t.h_gdgmga1||'—'}</td>
+      <td class="td-muted" style="text-align:center">${t.h_gdgmga2||'—'}</td>
+      <td class="td-muted" style="text-align:center">${t.h_gdcsaf1||'—'}</td>
+      <td class="td-muted" style="text-align:center">${t.h_gdcsaf2||'—'}</td>
+      <td><strong>${t.total}</strong></td>
+      <td><div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div><small class="td-muted">${pct}%</small></td>
+      <td><button class="btn-action" onclick="editItem('tutor',${t.id})">✏️</button></td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="9"><div class="empty"><div class="empty-icon">👩‍🏫</div><p>Sin tutores registrados</p></div></td></tr>`;
+
+  // ── SECCIÓN B: alumnos que les corresponden proporcionalmente por ciclo/curso ──
+  // Alumnos que SÍ realizan FFEOE, por ciclo+curso
+  const combos = ['GDGMGA-1º','GDGMGA-2º','GDCSAF-1º','GDCSAF-2º'];
+  const horaKey = {'GDGMGA-1º':'h_gdgmga1','GDGMGA-2º':'h_gdgmga2','GDCSAF-1º':'h_gdcsaf1','GDCSAF-2º':'h_gdcsaf2'};
+  const alumnosPorCombo = {};
+  combos.forEach(c => {
+    const [ciclo,curso] = c.split('-');
+    alumnosPorCombo[c] = data.alumnos.filter(a => a.ffeoe==='Sí' && a.ciclo===ciclo && a.curso===curso).length;
+  });
+  // Total horas por combo entre todos los tutores
+  const totalHPorCombo = {};
+  combos.forEach(c => {
+    totalHPorCombo[c] = data.tutores.reduce((s,t) => s+(parseFloat(t[horaKey[c]])||0), 0);
+  });
+
+  const tbody2 = document.getElementById('tutores-alumnos-body');
+  if (!data.tutores.length) { tbody2.innerHTML = ''; return; }
+
+  // Build header row
+  let html2 = `<thead><tr>
+    <th>Tutor</th>
+    <th style="text-align:center">1º GDGMGA<br><small style="font-weight:400;color:var(--muted)">(${alumnosPorCombo['GDGMGA-1º']} alumnos)</small></th>
+    <th style="text-align:center">2º GDGMGA<br><small style="font-weight:400;color:var(--muted)">(${alumnosPorCombo['GDGMGA-2º']} alumnos)</small></th>
+    <th style="text-align:center">1º GDCSAF<br><small style="font-weight:400;color:var(--muted)">(${alumnosPorCombo['GDCSAF-1º']} alumnos)</small></th>
+    <th style="text-align:center">2º GDCSAF<br><small style="font-weight:400;color:var(--muted)">(${alumnosPorCombo['GDCSAF-2º']} alumnos)</small></th>
+    <th style="text-align:center">Total correspond.</th>
+  </tr></thead><tbody>`;
+
+  data.tutores.forEach(t => {
+    let totalCorr = 0;
+    const celdas = combos.map(c => {
+      const hTutor = parseFloat(t[horaKey[c]])||0;
+      const hTotal = totalHPorCombo[c];
+      const nAlumnos = alumnosPorCombo[c];
+      const corr = hTotal > 0 ? Math.round((hTutor/hTotal)*nAlumnos*10)/10 : 0;
+      totalCorr += corr;
+      return `<td style="text-align:center">${hTutor>0?`<strong>${corr}</strong>`:'<span class="td-muted">—</span>'}</td>`;
+    }).join('');
+    html2 += `<tr><td class="td-name">${t.nombre}</td>${celdas}<td style="text-align:center"><strong style="color:var(--accent)">${Math.round(totalCorr*10)/10}</strong></td></tr>`;
+  });
+  html2 += '</tbody>';
+  document.getElementById('tutores-alumnos-table').innerHTML = html2;
+
+  // ── SECCIÓN C: se renderiza con función independiente ──
+  renderTutoresSeccionC();
+}
+
+// ── SECCIÓN C — función independiente, llamada también desde saveAsignacion ──
+function renderTutoresSeccionC() {
+  const tabla = document.getElementById('tutores-contador-table');
+  if (!tabla) return;
+
+  const combos = ['GDGMGA-1º','GDGMGA-2º','GDCSAF-1º','GDCSAF-2º'];
+  const horaKey = {'GDGMGA-1º':'h_gdgmga1','GDGMGA-2º':'h_gdgmga2','GDCSAF-1º':'h_gdcsaf1','GDCSAF-2º':'h_gdcsaf2'};
+  const alumnosPorCombo = {};
+  combos.forEach(c => {
+    const [ciclo, curso] = c.split('-');
+    alumnosPorCombo[c] = data.alumnos.filter(a => a.ffeoe==='Sí' && a.ciclo===ciclo && a.curso===curso).length;
+  });
+  const totalHPorCombo = {};
+  combos.forEach(c => {
+    totalHPorCombo[c] = data.tutores.reduce((s,t) => s+(parseFloat(t[horaKey[c]])||0), 0);
+  });
+
+  if (!data.tutores.length) {
+    tabla.innerHTML = '<tbody><tr><td colspan="6"><div class="empty"><div class="empty-icon">📊</div><p>Sin tutores registrados</p></div></td></tr></tbody>';
+    return;
+  }
+
+  let html = '<thead><tr>' +
+    '<th>Tutor</th>' +
+    '<th style="text-align:center">1º GDGMGA</th>' +
+    '<th style="text-align:center">2º GDGMGA</th>' +
+    '<th style="text-align:center">1º GDCSAF</th>' +
+    '<th style="text-align:center">2º GDCSAF</th>' +
+    '<th style="text-align:center">Total asignados / pendientes</th>' +
+    '</tr></thead><tbody>';
+
+  data.tutores.forEach(t => {
+    let totalAsig = 0, totalCorr = 0;
+    let celdas = '';
+    combos.forEach(c => {
+      const [ciclo, curso] = c.split('-');
+      const hTutor = parseFloat(t[horaKey[c]]) || 0;
+      const hTotal = totalHPorCombo[c];
+      const nAlumnos = alumnosPorCombo[c];
+      const corr = hTotal > 0 ? Math.round((hTutor / hTotal) * nAlumnos) : 0;
+      const asig = data.asignacion.filter(a =>
+        a.tutor_doc === t.nombre && a.ciclo_curso === (ciclo + ' ' + curso)
+      ).length;
+      totalAsig += asig;
+      totalCorr += corr;
+      if (hTutor === 0) {
+        celdas += '<td style="text-align:center"><span class="td-muted">—</span></td>';
+        return;
+      }
+      const pend = Math.max(0, corr - asig);
+      const pendColor = pend > 0 ? 'var(--yellow)' : 'var(--muted)';
+      celdas += '<td style="text-align:center">' +
+        '<span style="color:var(--green);font-weight:600">' + asig + '</span>' +
+        '<span style="color:var(--muted)"> / </span>' +
+        '<span style="color:' + pendColor + ';font-weight:600">' + pend + ' pend.</span>' +
+        '</td>';
+    });
+    const pendTotal = Math.max(0, totalCorr - totalAsig);
+    const pendTotalColor = pendTotal > 0 ? 'var(--red)' : 'var(--muted)';
+    html += '<tr><td class="td-name">' + t.nombre + '</td>' + celdas +
+      '<td style="text-align:center">' +
+        '<span style="color:var(--green);font-weight:700">' + totalAsig + ' asig.</span>' +
+        '<span style="color:var(--muted)"> / </span>' +
+        '<span style="color:' + pendTotalColor + ';font-weight:700">' + pendTotal + ' pend.</span>' +
+      '</td></tr>';
+  });
+  html += '</tbody>';
+  tabla.innerHTML = html;
+}
+
+// ── ASIGNACIÓN ──
+function renderAsignacion() {
+  // Populate tutor filter dynamically from tutores data
+  const sel = document.getElementById('filter-tutor-doc');
+  if (sel) {
+    const current = sel.value;
+    sel.innerHTML = '<option value="">Todos los tutores</option>' +
+      data.tutores.map(t => `<option value="${t.nombre}" ${current===t.nombre?'selected':''}>${t.nombre}</option>`).join('') +
+      `<option value="__sin__" ${'__sin__'===current?'selected':''}>Sin tutor asignado</option>`;
+  }
+
+  const f = filters.asignacion;
+  let rows = data.asignacion.filter(a => {
+    const q = f.search.toLowerCase();
+    const matchS = !q || a.alumno.toLowerCase().includes(q) || (a.empresa||'').toLowerCase().includes(q);
+    const matchE = !f.estado || a.estado === f.estado;
+    const matchT = !f.tutor
+      ? true
+      : f.tutor === '__sin__'
+        ? !a.tutor_doc || a.tutor_doc === ''
+        : a.tutor_doc === f.tutor;
+    return matchS && matchE && matchT;
+  });
+
+  const tbody = document.getElementById('asignacion-body');
+  if (!rows.length) { tbody.innerHTML = `<tr><td colspan="10"><div class="empty"><div class="empty-icon">📋</div><p>No hay asignaciones</p></div></td></tr>`; return; }
+
+  tbody.innerHTML = rows.map(a => `
+    <tr>
+      <td class="td-muted">${a.id}</td>
+      <td class="td-name">${a.alumno}</td>
+      <td><span class="badge badge-blue">${a.ciclo_curso}</span></td>
+      <td>${a.empresa||'<span class="td-muted">—</span>'}</td>
+      <td>${a.tutor_doc||'<span class="td-muted">—</span>'}</td>
+      <td>${a.tutor_lab||'<span class="td-muted">—</span>'}</td>
+      <td class="td-muted">${a.dni_lab||'—'}</td>
+      <td>${a.validacion||'—'}</td>
+      <td>${estadoBadge(a.estado)}</td>
+      <td><button class="btn-action" onclick="editItem('asignacion',${a.id})">✏️</button></td>
+    </tr>
+  `).join('');
+}
+
+// ── SIN FCT ──
+function renderSinfct() {
+  const f = filters.sinfct;
+  let rows = data.sinfct.filter(s => {
+    const q = f.search.toLowerCase();
+    return !q || (s.alumno||'').toLowerCase().includes(q);
+  }).filter(s => s.alumno);
+
+  const tbody = document.getElementById('sinfct-body');
+  if (!rows.length) { tbody.innerHTML = `<tr><td colspan="9"><div class="empty"><div class="empty-icon">✅</div><p>No hay alumnos sin FCT registrados</p></div></td></tr>`; return; }
+
+  tbody.innerHTML = rows.map(s => `
+    <tr>
+      <td class="td-muted">${s.id}</td>
+      <td class="td-name">${s.alumno}</td>
+      <td><span class="badge ${s.ciclo==='GDGMGA'?'ciclo-1':'ciclo-2'}">${s.ciclo}</span></td>
+      <td>${s.curso}</td>
+      <td>${s.motivo?`<span class="badge badge-yellow">${s.motivo}</span>`:'<span class="td-muted">—</span>'}</td>
+      <td class="td-muted">${s.fecha||'—'}</td>
+      <td>${s.doc?'<span class="badge badge-green">✔ Aportada</span>':'<span class="badge badge-gray">Pendiente</span>'}</td>
+      <td class="td-muted">${s.obs||'—'}</td>
+      <td><button class="btn-action" onclick="editItem('sinfct',${s.id})">✏️</button></td>
+    </tr>
+  `).join('');
+}
+
+// ─────────────────────────── FILTERS ───────────────────────────
+function filterTable(type, val) {
+  if (type === 'empresas') { filters.empresas.search = val; renderEmpresas(); }
+  if (type === 'alumnos') { filters.alumnos.search = val; renderAlumnos(); }
+  if (type === 'asignacion') { filters.asignacion.search = val; renderAsignacion(); }
+  if (type === 'sinfct') { filters.sinfct.search = val; renderSinfct(); }
+}
+function filterEmpresasSector(v) { filters.empresas.sector = v; renderEmpresas(); }
+function filterEmpresasActiva(v) { filters.empresas.activa = v; renderEmpresas(); }
+function filterAlumnosCiclo(v) { filters.alumnos.ciclo = v; renderAlumnos(); }
+function filterAlumnosFfeo(v) { filters.alumnos.ffeoe = v; renderAlumnos(); }
+function filterAsigEstado(v) { filters.asignacion.estado = v; renderAsignacion(); }
+function filterAsigTutor(v) { filters.asignacion.tutor = v; renderAsignacion(); }
+
+// ─────────────────────────── HELPERS ───────────────────────────
+function scoreDots(v) {
+  const colors = ['','#f04438','#f5a623','#f5a623','#3ecf8e','#3ecf8e'];
+  return `<div class="score">${[1,2,3,4,5].map(i=>`<div class="score-dot" style="background:${i<=v?colors[v]:'var(--border)'}"></div>`).join('')}<span style="font-size:11px;color:var(--muted);margin-left:4px">${v}</span></div>`;
+}
+function contratBadge(v) {
+  if (v === 'Alta') return '<span class="badge badge-green">Alta</span>';
+  if (v === 'Media') return '<span class="badge badge-yellow">Media</span>';
+  if (v === 'Baja') return '<span class="badge badge-red">Baja</span>';
+  return `<span class="badge badge-gray">${v||'—'}</span>`;
+}
+function estadoBadge(v) {
+  const map = {
+    'Empresa no confirmada':'badge-gray','Empresa confirmada':'badge-blue',
+    'Acuerdo firmado':'badge-purple','En prácticas':'badge-green',
+    'Prácticas finalizadas':'badge-green','Baja':'badge-red'
+  };
+  return `<span class="badge ${map[v]||'badge-gray'}">${v}</span>`;
+}
+
+// ─────────────────────────── MODALS ───────────────────────────
+function openModal(type, id) {
+  editType = type; editId = id || null;
+  const overlay = document.getElementById('modal-overlay');
+  const content = document.getElementById('modal-content');
+  content.innerHTML = buildForm(type, id);
+  overlay.classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  editType = null; editId = null;
+}
+function editItem(type, id) { openModal(type, id); }
+
+function buildForm(type, id) {
+  if (type === 'empresa') {
+    const e = id ? data.empresas.find(x=>x.id===id) : {};
+    return `<h3>${id?'Editar':'Nueva'} empresa</h3>
+    <div class="form-grid">
+      <div class="form-group full"><label>Nombre empresa</label><input id="f-nombre" value="${e.nombre||''}"></div>
+      <div class="form-group"><label>CIF</label><input id="f-cif" value="${e.cif||''}"></div>
+      <div class="form-group"><label>Sector</label><input id="f-sector" value="${e.sector||''}"></div>
+      <div class="form-group"><label>Localidad</label><input id="f-localidad" value="${e.localidad||''}"></div>
+      <div class="form-group"><label>Dirección</label><input id="f-dir" value="${e.direccion||''}"></div>
+      <div class="form-group"><label>Representante legal</label><input id="f-rep" value="${e.rep||''}"></div>
+      <div class="form-group"><label>DNI representante</label><input id="f-dni" value="${e.dni_rep||''}"></div>
+      <div class="form-group"><label>Persona de contacto</label><input id="f-contacto" value="${e.contacto||''}"></div>
+      <div class="form-group"><label>DNI persona de contacto</label><input id="f-dni-contacto" value="${e.dni_contacto||''}"></div>
+      <div class="form-group"><label>Teléfono</label><input id="f-tel" value="${e.tel||''}"></div>
+      <div class="form-group"><label>Email</label><input id="f-email" value="${e.email||''}"></div>
+      <div class="form-group"><label>Nº plazas solicita</label><input id="f-plazas" type="number" value="${e.plazas||1}" min="0"></div>
+      <div class="form-group"><label>Posibilidad contratación</label>
+        <select id="f-contrat"><option ${e.contrat==='Alta'?'selected':''}>Alta</option><option ${e.contrat==='Media'?'selected':''}>Media</option><option ${e.contrat==='Baja'?'selected':''}>Baja</option></select>
+      </div>
+      <div class="form-group"><label>Activa</label>
+        <select id="f-activa"><option ${e.activa==='Sí'?'selected':''}>Sí</option><option ${e.activa==='No'?'selected':''}>No</option></select>
+      </div>
+    </div>
+    <div style="margin-top:14px"><label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px">Ciclos que acepta</label>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="f-g1" ${e.gdgmga1?'checked':''}> 1º GDGMGA</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="f-g2" ${e.gdgmga2?'checked':''}> 2º GDGMGA</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="f-c1" ${e.gdcsaf1?'checked':''}> 1º GDCSAF</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="f-c2" ${e.gdcsaf2?'checked':''}> 2º GDCSAF</label>
+    </div></div>
+    <div class="modal-actions">${id?`<button class="btn-delete" onclick="deleteItem('empresa',${id})">🗑 Eliminar</button>`:''}
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-save" onclick="saveEmpresa(${id||'null'})">Guardar</button>
+    </div>`;
+  }
+
+  if (type === 'alumno') {
+    const a = id ? data.alumnos.find(x=>x.id===id) : {};
+    return `<h3>${id?'Editar':'Nuevo'} alumno</h3>
+    <div class="form-grid">
+      <div class="form-group full"><label>Nombre y apellidos</label><input id="f-nombre" value="${a.nombre||''}"></div>
+      <div class="form-group"><label>Ciclo</label>
+        <select id="f-ciclo"><option ${a.ciclo==='GDGMGA'?'selected':''}>GDGMGA</option><option ${a.ciclo==='GDCSAF'?'selected':''}>GDCSAF</option></select>
+      </div>
+      <div class="form-group"><label>Curso</label>
+        <select id="f-curso"><option ${a.curso==='1º'?'selected':''}>1º</option><option ${a.curso==='2º'?'selected':''}>2º</option></select>
+      </div>
+      <div class="form-group"><label>Realiza FFEOE</label>
+        <select id="f-ffeoe"><option ${a.ffeoe==='Sí'?'selected':''}>Sí</option><option ${a.ffeoe==='No'?'selected':''}>No</option></select>
+      </div>
+      <div class="form-group"><label>Disponibilidad coche</label>
+        <select id="f-coche"><option ${a.coche==='Sí'?'selected':''}>Sí</option><option ${a.coche==='No'?'selected':''}>No</option></select>
+      </div>
+      <div class="form-group"><label>Preferencia de zona</label><input id="f-zona" value="${a.zona||''}"></div>
+      <div class="form-group"><label>Actitud (1–5)</label>
+        <select id="f-actitud">${[1,2,3,4,5].map(i=>`<option ${a.actitud==i?'selected':''}>${i}</option>`).join('')}</select>
+      </div>
+      <div class="form-group"><label>Aptitud (1–5)</label>
+        <select id="f-aptitud">${[1,2,3,4,5].map(i=>`<option ${a.aptitud==i?'selected':''}>${i}</option>`).join('')}</select>
+      </div>
+      <div class="form-group"><label>Aporta empresa</label>
+        <select id="f-aporta"><option ${a.aporta==='No'?'selected':''}>No</option><option ${a.aporta==='Sí'?'selected':''}>Sí</option></select>
+      </div>
+      <div class="form-group"><label>Empresa aportada</label><input id="f-emp-ap" value="${a.empresa_aportada||''}"></div>
+      <div class="form-group full"><label>Observaciones</label><input id="f-obs" value="${a.obs||''}"></div>
+    </div>
+    <div class="modal-actions">${id?`<button class="btn-delete" onclick="deleteItem('alumno',${id})">🗑 Eliminar</button>`:''}
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-save" onclick="saveAlumno(${id||'null'})">Guardar</button>
+    </div>`;
+  }
+
+  if (type === 'tutor') {
+    const t = id ? data.tutores.find(x=>x.id===id) : {};
+    return `<h3>${id?'Editar':'Nuevo'} tutor docente</h3>
+    <div class="form-grid">
+      <div class="form-group full"><label>Nombre del tutor</label><input id="f-nombre" value="${t.nombre||''}"></div>
+      <div class="form-group"><label>Horas 1º GDGMGA</label><input id="f-h1" type="number" min="0" value="${t.h_gdgmga1||0}"></div>
+      <div class="form-group"><label>Horas 2º GDGMGA</label><input id="f-h2" type="number" min="0" value="${t.h_gdgmga2||0}"></div>
+      <div class="form-group"><label>Horas 1º GDCSAF</label><input id="f-h3" type="number" min="0" value="${t.h_gdcsaf1||0}"></div>
+      <div class="form-group"><label>Horas 2º GDCSAF</label><input id="f-h4" type="number" min="0" value="${t.h_gdcsaf2||0}"></div>
+      <div class="form-group full">
+        <label>Rol especial</label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:4px;font-size:13px;text-transform:none;letter-spacing:0;color:var(--text)">
+          <input type="checkbox" id="f-dual" ${t.dual?'checked':''} style="width:16px;height:16px;accent-color:var(--accent2)">
+          Coordinador/a Dual
+          <span class="badge badge-purple" style="margin-left:4px">⭐ Coord. Dual</span>
+        </label>
+      </div>
+    </div>
+    <div class="modal-actions">${id?`<button class="btn-delete" onclick="deleteItem('tutor',${id})">🗑 Eliminar</button>`:''}
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-save" onclick="saveTutor(${id||'null'})">Guardar</button>
+    </div>`;
+  }
+
+  if (type === 'asignacion') {
+    const a = id ? data.asignacion.find(x=>x.id===id) : {};
+    const empOpts = data.empresas.filter(e=>e.activa==='Sí').map(e=>`<option ${a.empresa===e.nombre?'selected':''}>${e.nombre}</option>`).join('');
+    const tutOpts = data.tutores.map(t=>`<option ${a.tutor_doc===t.nombre?'selected':''}>${t.nombre}</option>`).join('');
+    const estados = ['Empresa no confirmada','Empresa confirmada','Acuerdo firmado','En prácticas','Prácticas finalizadas','Baja'];
+    return `<h3>Editar asignación — ${a.alumno}</h3>
+    <div class="form-grid">
+      <div class="form-group full"><label>Empresa asignada</label>
+        <select id="f-empresa"><option value="">— Sin asignar —</option>${empOpts}</select>
+      </div>
+      <div class="form-group full"><label>Tutor docente</label>
+        <select id="f-tutor-doc"><option value="">— Sin asignar —</option>${tutOpts}</select>
+      </div>
+      <div class="form-group"><label>Nombre tutor laboral</label><input id="f-tlab" value="${a.tutor_lab||''}"></div>
+      <div class="form-group"><label>DNI tutor laboral</label><input id="f-dni-lab" value="${a.dni_lab||''}"></div>
+      <div class="form-group full"><label>Estado del acuerdo</label>
+        <select id="f-estado">${estados.map(s=>`<option ${a.estado===s?'selected':''}>${s}</option>`).join('')}</select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-save" onclick="saveAsignacion(${id})">Guardar</button>
+    </div>`;
+  }
+
+  if (type === 'sinfct') {
+    const s = id ? data.sinfct.find(x=>x.id===id) : {};
+    const alumnosOpts = data.alumnos.map(a=>`<option ${s.alumno===a.nombre?'selected':''}>${a.nombre}</option>`).join('');
+    const motivos = ['Exención total','Exención parcial','Convalidación','Contrato en vigor','Discapacidad','Otros'];
+    return `<h3>${id?'Editar':'Nuevo'} registro sin FCT</h3>
+    <div class="form-grid">
+      <div class="form-group full"><label>Alumno</label>
+        <select id="f-alumno"><option value="">— Seleccionar —</option>${alumnosOpts}</select>
+      </div>
+      <div class="form-group"><label>Motivo de exclusión</label>
+        <select id="f-motivo"><option value="">—</option>${motivos.map(m=>`<option ${s.motivo===m?'selected':''}>${m}</option>`).join('')}</select>
+      </div>
+      <div class="form-group"><label>Fecha comunicación</label><input id="f-fecha" type="date" value="${s.fecha||''}"></div>
+      <div class="form-group"><label>Documentación acreditativa</label>
+        <select id="f-doc"><option ${!s.doc?'selected':''} value="">Pendiente</option><option ${s.doc==='Sí'?'selected':''} value="Sí">Aportada</option></select>
+      </div>
+      <div class="form-group full"><label>Observaciones</label><input id="f-obs" value="${s.obs||''}"></div>
+    </div>
+    <div class="modal-actions">${id?`<button class="btn-delete" onclick="deleteItem('sinfct',${id})">🗑 Eliminar</button>`:''}
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-save" onclick="saveSinfct(${id||'null'})">Guardar</button>
+    </div>`;
+  }
+  return '';
+}
+
+// ─────────────────────────── SAVE/DELETE ───────────────────────────
+async function saveEmpresa(id) {
+  const obj = {
+    nombre:v('f-nombre'), cif:v('f-cif'), sector:v('f-sector'), localidad:v('f-localidad'),
+    direccion:v('f-dir'), rep:v('f-rep'), dni_rep:v('f-dni'), contacto:v('f-contacto'),
+    dni_contacto:v('f-dni-contacto'), tel:v('f-tel'), email:v('f-email'),
+    plazas:parseInt(v('f-plazas'))||0,
+    contrat:v('f-contrat'), activa:v('f-activa'),
+    gdgmga1:document.getElementById('f-g1').checked?'✔':'',
+    gdgmga2:document.getElementById('f-g2').checked?'✔':'',
+    gdcsaf1:document.getElementById('f-c1').checked?'✔':'',
+    gdcsaf2:document.getElementById('f-c2').checked?'✔':'',
+  };
+  setLoading(true);
+  try {
+    if (id) { const r = await sbUpdate('empresas', id, obj); const i = data.empresas.findIndex(x=>x.id===id); data.empresas[i]={...data.empresas[i],...r}; }
+    else { obj.asignados=0; const r = await sbInsert('empresas', obj); data.empresas.push(r); }
+    closeModal(); renderEmpresas(); updateSidebar(); toast('Empresa guardada');
+  } catch(e) { toast('Error: '+e.message,'err'); } finally { setLoading(false); }
+}
+
+async function saveAlumno(id) {
+  const act=parseInt(v('f-actitud'))||1, apt=parseInt(v('f-aptitud'))||1;
+  const obj = {
+    nombre:v('f-nombre'), ciclo:v('f-ciclo'), curso:v('f-curso'), ffeoe:v('f-ffeoe'),
+    coche:v('f-coche'), zona:v('f-zona'), actitud:act, aptitud:apt,
+    media:Math.round((act+apt)/2*10)/10, aporta:v('f-aporta'),
+    empresa_aportada:v('f-emp-ap'), obs:v('f-obs')
+  };
+  setLoading(true);
+  try {
+    let alumnoAnterior = id ? data.alumnos.find(x=>x.id===id) : null;
+
+    if (id) {
+      const r = await sbUpdate('alumnos', id, obj);
+      const i = data.alumnos.findIndex(x=>x.id===id);
+      data.alumnos[i] = {...data.alumnos[i], ...r};
+    } else {
+      const r = await sbInsert('alumnos', obj);
+      data.alumnos.push(r);
+    }
+
+    const nombreAnterior = alumnoAnterior ? alumnoAnterior.nombre : null;
+    const ffeoeAnterior  = alumnoAnterior ? alumnoAnterior.ffeoe  : null;
+    const nombreNuevo    = obj.nombre;
+    const ffeoeNuevo     = obj.ffeoe;
+
+    // ── Sincronizar ASIGNACIÓN (FFEOE = Sí → aparece, No → desaparece) ──
+    const enAsig = data.asignacion.find(a => a.alumno === (nombreAnterior || nombreNuevo));
+    if (ffeoeNuevo === 'Sí' && !enAsig) {
+      const fila = { alumno: nombreNuevo, ciclo_curso: obj.ciclo + ' ' + obj.curso, empresa:'', tutor_doc:'', tutor_lab:'', dni_lab:'', validacion:'—', estado:'Empresa no confirmada' };
+      const r2 = await sbInsert('asignacion', fila);
+      data.asignacion.push(r2);
+    } else if (ffeoeNuevo === 'No' && enAsig) {
+      await sbDelete('asignacion', enAsig.id);
+      data.asignacion = data.asignacion.filter(a => a.id !== enAsig.id);
+    } else if (ffeoeNuevo === 'Sí' && enAsig && enAsig.alumno !== nombreNuevo) {
+      await sbUpdate('asignacion', enAsig.id, { alumno: nombreNuevo, ciclo_curso: obj.ciclo + ' ' + obj.curso });
+      enAsig.alumno = nombreNuevo;
+      enAsig.ciclo_curso = obj.ciclo + ' ' + obj.curso;
+    }
+
+    // ── Sincronizar SIN FCT (FFEOE = No → aparece, Sí → desaparece) ──
+    const enSinFct = data.sinfct.find(s => s.alumno === (nombreAnterior || nombreNuevo));
+    if (ffeoeNuevo === 'No' && !enSinFct) {
+      const fila = { alumno: nombreNuevo, ciclo: obj.ciclo, curso: obj.curso, motivo:'', fecha:'', doc:'', obs:'' };
+      const r3 = await sbInsert('sinfct', fila);
+      data.sinfct.push(r3);
+    } else if (ffeoeNuevo === 'Sí' && enSinFct) {
+      await sbDelete('sinfct', enSinFct.id);
+      data.sinfct = data.sinfct.filter(s => s.id !== enSinFct.id);
+    } else if (ffeoeNuevo === 'No' && enSinFct && enSinFct.alumno !== nombreNuevo) {
+      await sbUpdate('sinfct', enSinFct.id, { alumno: nombreNuevo, ciclo: obj.ciclo, curso: obj.curso });
+      enSinFct.alumno = nombreNuevo;
+      enSinFct.ciclo  = obj.ciclo;
+      enSinFct.curso  = obj.curso;
+    }
+
+    closeModal(); renderAlumnos(); updateSidebar(); toast('Alumno guardado');
+  } catch(e) { toast('Error: '+e.message,'err'); } finally { setLoading(false); }
+}
+
+async function saveTutor(id) {
+  const h1=parseInt(v('f-h1'))||0, h2=parseInt(v('f-h2'))||0, h3=parseInt(v('f-h3'))||0, h4=parseInt(v('f-h4'))||0;
+  const dual = document.getElementById('f-dual') ? document.getElementById('f-dual').checked : false;
+  const obj = { nombre:v('f-nombre'), h_gdgmga1:h1, h_gdgmga2:h2, h_gdcsaf1:h3, h_gdcsaf2:h4, total:h1+h2+h3+h4, pct:0, dual };
+  setLoading(true);
+  try {
+    if (id) { const r = await sbUpdate('tutores', id, obj); const i = data.tutores.findIndex(x=>x.id===id); data.tutores[i]={...data.tutores[i],...r}; }
+    else { const r = await sbInsert('tutores', obj); data.tutores.push(r); }
+    closeModal(); renderTutores(); toast('Tutor guardado');
+  } catch(e) { toast('Error: '+e.message,'err'); } finally { setLoading(false); }
+}
+
+async function saveAsignacion(id) {
+  const old = data.asignacion.find(x=>x.id===id);
+  const ne = v('f-empresa');
+  const obj = { empresa:ne, tutor_doc:v('f-tutor-doc'), tutor_lab:v('f-tlab'), dni_lab:v('f-dni-lab'), estado:v('f-estado') };
+  setLoading(true);
+  try {
+    const r = await sbUpdate('asignacion', id, obj);
+    const i = data.asignacion.findIndex(x=>x.id===id);
+    data.asignacion[i] = {...old, ...r};
+    // Actualizar contador asignados en empresas
+    if (old.empresa && old.empresa !== ne) {
+      const ei = data.empresas.findIndex(e=>e.nombre===old.empresa);
+      if (ei>=0) { data.empresas[ei].asignados = Math.max(0,(data.empresas[ei].asignados||1)-1); await sbUpdate('empresas', data.empresas[ei].id, {asignados: data.empresas[ei].asignados}); }
+    }
+    if (ne && ne !== old.empresa) {
+      const ei = data.empresas.findIndex(e=>e.nombre===ne);
+      if (ei>=0) { data.empresas[ei].asignados = (data.empresas[ei].asignados||0)+1; await sbUpdate('empresas', data.empresas[ei].id, {asignados: data.empresas[ei].asignados}); }
+    }
+    closeModal(); renderAsignacion(); updateSidebar(); toast('Asignación guardada');
+    const tutPage = document.getElementById('page-tutores');
+    const wasHidden = tutPage.classList.contains('hidden');
+    if (wasHidden) tutPage.classList.remove('hidden');
+    renderTutoresSeccionC();
+    if (wasHidden) tutPage.classList.add('hidden');
+  } catch(e) { toast('Error: '+e.message,'err'); } finally { setLoading(false); }
+}
+
+async function saveSinfct(id) {
+  const alumnoNom = v('f-alumno');
+  const alumno = data.alumnos.find(a=>a.nombre===alumnoNom);
+  const obj = { alumno:alumnoNom, ciclo:alumno?alumno.ciclo:'', curso:alumno?alumno.curso:'', motivo:v('f-motivo'), fecha:v('f-fecha'), doc:v('f-doc'), obs:v('f-obs') };
+  setLoading(true);
+  try {
+    if (id) { const r = await sbUpdate('sinfct', id, obj); const i = data.sinfct.findIndex(x=>x.id===id); data.sinfct[i]={...data.sinfct[i],...r}; }
+    else { const r = await sbInsert('sinfct', obj); data.sinfct.push(r); }
+    closeModal(); renderSinfct(); toast('Registro guardado');
+  } catch(e) { toast('Error: '+e.message,'err'); } finally { setLoading(false); }
+}
+
+async function deleteItemDirect(type, id) {
+  if (!confirm('¿Eliminar este registro?')) return;
+  setLoading(true);
+  try {
+    await sbDelete(type, id);
+    if (type==='empresas') data.empresas = data.empresas.filter(x=>x.id!==id);
+    render('empresas'); updateSidebar(); toast('Eliminado');
+  } catch(e) { toast('Error: '+e.message,'err'); } finally { setLoading(false); }
+}
+
+async function deleteItem(type, id) {
+  if (!confirm('¿Eliminar este registro?')) return;
+  const table = type==='sinfct'?'sinfct':type+'s';
+  setLoading(true);
+  try {
+    if (type === 'alumno') {
+      const alumno = data.alumnos.find(x=>x.id===id);
+      if (alumno) {
+        const enAsig = data.asignacion.find(a => a.alumno === alumno.nombre);
+        if (enAsig) { await sbDelete('asignacion', enAsig.id); data.asignacion = data.asignacion.filter(a => a.id !== enAsig.id); }
+        const enSinFct = data.sinfct.find(s => s.alumno === alumno.nombre);
+        if (enSinFct) { await sbDelete('sinfct', enSinFct.id); data.sinfct = data.sinfct.filter(s => s.id !== enSinFct.id); }
+      }
+    }
+    await sbDelete(table, id);
+    if (type==='empresa') data.empresas = data.empresas.filter(x=>x.id!==id);
+    if (type==='alumno') data.alumnos = data.alumnos.filter(x=>x.id!==id);
+    if (type==='tutor') data.tutores = data.tutores.filter(x=>x.id!==id);
+    if (type==='sinfct') data.sinfct = data.sinfct.filter(x=>x.id!==id);
+    closeModal(); render(type==='sinfct'?'sin-fct':type+'s'); toast('Eliminado');
+  } catch(e) { toast('Error: '+e.message,'err'); } finally { setLoading(false); }
+}
+
+function v(id) { const el = document.getElementById(id); return el ? el.value : ''; }
+
+// Close on overlay click
+document.getElementById('modal-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ─────────────────────────── PRINT ───────────────────────────
+function printPage(type) {
+  const now = new Date();
+  const fecha = now.toLocaleDateString('es-ES', {day:'2-digit',month:'long',year:'numeric'});
+  const hora = now.toLocaleTimeString('es-ES', {hour:'2-digit',minute:'2-digit'});
+
+  let titulo = '', subtitulo = '', filtrosActivos = '', tableHTML = '';
+
+  if (type === 'empresas') {
+    const f = filters.empresas;
+    titulo = 'Empresas colaboradoras FCT';
+    subtitulo = 'IES Cantillana · FP Administración y Gestión';
+    const filas = data.empresas.filter(e => {
+      const q = f.search.toLowerCase();
+      return (!q || e.nombre.toLowerCase().includes(q) || e.sector.toLowerCase().includes(q) || e.localidad.toLowerCase().includes(q))
+        && (!f.sector || e.sector === f.sector)
+        && (!f.activa || e.activa === f.activa);
+    });
+    const filtros = [];
+    if (f.search) filtros.push(`Búsqueda: "${f.search}"`);
+    if (f.sector) filtros.push(`Sector: ${f.sector}`);
+    if (f.activa) filtros.push(`Estado: ${f.activa === 'Sí' ? 'Solo activas' : 'Solo inactivas'}`);
+    filtrosActivos = filtros.length ? filtros.join(' · ') : 'Sin filtros aplicados';
+
+    tableHTML = `<table class="print-table">
+      <thead><tr>
+        <th>#</th><th>Nombre empresa</th><th>CIF</th><th>Sector</th><th>Localidad</th>
+        <th>Persona contacto</th><th>DNI contacto</th><th>Teléfono</th><th>Email</th>
+        <th>1ºGDGMGA</th><th>2ºGDGMGA</th><th>1ºGDCSAF</th><th>2ºGDCSAF</th>
+        <th>Plazas</th><th>Contrat.</th><th>Activa</th><th>Asig.</th>
+      </tr></thead><tbody>` +
+      filas.map(e => `<tr>
+        <td>${e.id}</td>
+        <td><strong>${e.nombre}</strong></td>
+        <td>${e.cif||''}</td>
+        <td><span class="print-badge print-badge-blue">${e.sector}</span></td>
+        <td>${e.localidad}</td>
+        <td>${e.contacto||''}</td>
+        <td>${e.dni_contacto||'—'}</td>
+        <td>${e.tel||''}</td>
+        <td>${e.email||''}</td>
+        <td style="text-align:center">${e.gdgmga1?'<span class="print-tick">✔</span>':'<span class="print-dash">—</span>'}</td>
+        <td style="text-align:center">${e.gdgmga2?'<span class="print-tick">✔</span>':'<span class="print-dash">—</span>'}</td>
+        <td style="text-align:center">${e.gdcsaf1?'<span class="print-tick">✔</span>':'<span class="print-dash">—</span>'}</td>
+        <td style="text-align:center">${e.gdcsaf2?'<span class="print-tick">✔</span>':'<span class="print-dash">—</span>'}</td>
+        <td style="text-align:center"><strong>${e.plazas}</strong></td>
+        <td>${pBadge(e.contrat)}</td>
+        <td>${e.activa==='Sí'?'<span class="print-badge print-badge-green">Activa</span>':'<span class="print-badge print-badge-red">Inactiva</span>'}</td>
+        <td style="text-align:center"><strong>${e.asignados||0}</strong></td>
+      </tr>`).join('') +
+      `</tbody></table>`;
+    tableHTML += `<div class="print-footer"><span>Total: ${filas.length} empresa${filas.length!==1?'s':''}</span><span>IES Cantillana — FCT ${new Date().getFullYear()}</span></div>`;
+  }
+
+  if (type === 'alumnos') {
+    const f = filters.alumnos;
+    titulo = 'Alumnos en FCT';
+    subtitulo = 'IES Cantillana · FP Administración y Gestión';
+    const filas = data.alumnos.filter(a => {
+      const q = f.search.toLowerCase();
+      return (!q || a.nombre.toLowerCase().includes(q) || a.zona.toLowerCase().includes(q) || a.ciclo.toLowerCase().includes(q))
+        && (!f.ciclo || a.ciclo === f.ciclo)
+        && (!f.ffeoe || a.ffeoe === f.ffeoe);
+    });
+    const filtros = [];
+    if (f.search) filtros.push(`Búsqueda: "${f.search}"`);
+    if (f.ciclo) filtros.push(`Ciclo: ${f.ciclo}`);
+    if (f.ffeoe) filtros.push(`FFEOE: ${f.ffeoe}`);
+    filtrosActivos = filtros.length ? filtros.join(' · ') : 'Sin filtros aplicados';
+
+    tableHTML = `<table class="print-table">
+      <thead><tr>
+        <th>#</th><th>Nombre y apellidos</th><th>Ciclo</th><th>Curso</th>
+        <th>FFEOE</th><th>Coche</th><th>Zona preferida</th>
+        <th>Actitud</th><th>Aptitud</th><th>Media</th><th>Aporta empresa</th><th>Empresa aportada</th>
+      </tr></thead><tbody>` +
+      filas.map(a => `<tr>
+        <td>${a.id}</td>
+        <td><strong>${a.nombre}</strong></td>
+        <td><span class="print-badge ${a.ciclo==='GDGMGA'?'print-badge-blue':'print-badge-purple'}">${a.ciclo}</span></td>
+        <td>${a.curso}</td>
+        <td>${a.ffeoe==='Sí'?'<span class="print-badge print-badge-green">Sí</span>':'<span class="print-badge print-badge-gray">No</span>'}</td>
+        <td>${a.coche==='Sí'?'<span class="print-badge print-badge-blue">Sí</span>':'<span class="print-badge print-badge-gray">No</span>'}</td>
+        <td>${a.zona}</td>
+        <td style="text-align:center">${a.actitud}</td>
+        <td style="text-align:center">${a.aptitud}</td>
+        <td style="text-align:center"><strong>${a.media}</strong></td>
+        <td>${a.aporta==='Sí'?'<span class="print-badge print-badge-yellow">Sí</span>':'<span class="print-badge print-badge-gray">No</span>'}</td>
+        <td>${a.empresa_aportada||''}</td>
+      </tr>`).join('') +
+      `</tbody></table>`;
+    tableHTML += `<div class="print-footer"><span>Total: ${filas.length} alumno${filas.length!==1?'s':''}</span><span>IES Cantillana — FCT ${new Date().getFullYear()}</span></div>`;
+  }
+
+  if (type === 'asignacion') {
+    const f = filters.asignacion;
+    titulo = 'Asignación de prácticas FCT';
+    subtitulo = 'IES Cantillana · FP Administración y Gestión';
+    const filas = data.asignacion.filter(a => {
+      const q = f.search.toLowerCase();
+      const matchS = !q || a.alumno.toLowerCase().includes(q) || (a.empresa||'').toLowerCase().includes(q);
+      const matchE = !f.estado || a.estado === f.estado;
+      const matchT = !f.tutor
+        ? true
+        : f.tutor === '__sin__'
+          ? !a.tutor_doc || a.tutor_doc === ''
+          : a.tutor_doc === f.tutor;
+      return matchS && matchE && matchT;
+    });
+    const filtros = [];
+    if (f.search) filtros.push(`Búsqueda: "${f.search}"`);
+    if (f.estado) filtros.push(`Estado: ${f.estado}`);
+    if (f.tutor) filtros.push(`Tutor: ${f.tutor === '__sin__' ? 'Sin tutor asignado' : f.tutor}`);
+    filtrosActivos = filtros.length ? filtros.join(' · ') : 'Sin filtros aplicados';
+
+    const estadoMap = {'Empresa no confirmada':'print-badge-gray','Empresa confirmada':'print-badge-blue','Acuerdo firmado':'print-badge-purple','En prácticas':'print-badge-green','Prácticas finalizadas':'print-badge-green','Baja':'print-badge-red'};
+    tableHTML = `<table class="print-table">
+      <thead><tr>
+        <th>#</th><th>Alumno</th><th>Ciclo / Curso</th>
+        <th>Empresa asignada</th><th>Tutor docente</th>
+        <th>Tutor laboral</th><th>DNI tutor laboral</th><th>Estado</th>
+      </tr></thead><tbody>` +
+      filas.map(a => `<tr>
+        <td>${a.id}</td>
+        <td><strong>${a.alumno}</strong></td>
+        <td><span class="print-badge print-badge-blue">${a.ciclo_curso}</span></td>
+        <td>${a.empresa||'—'}</td>
+        <td>${a.tutor_doc||'—'}</td>
+        <td>${a.tutor_lab||'—'}</td>
+        <td>${a.dni_lab||'—'}</td>
+        <td><span class="print-badge ${estadoMap[a.estado]||'print-badge-gray'}">${a.estado}</span></td>
+      </tr>`).join('') +
+      `</tbody></table>`;
+    const asig = filas.filter(a=>a.empresa).length;
+    tableHTML += `<div class="print-footer"><span>Total: ${filas.length} alumno${filas.length!==1?'s':''} · Asignados: ${asig} · Pendientes: ${filas.length - asig}</span><span>IES Cantillana — FCT ${new Date().getFullYear()}</span></div>`;
+  }
+
+  document.getElementById('print-section').innerHTML = `
+    <div class="print-header">
+      <h1>${titulo}</h1>
+      <p>${subtitulo}</p>
+    </div>
+    <div class="print-meta">
+      <span>📅 Fecha: <strong>${fecha}</strong></span>
+      <span>🕐 Hora: <strong>${hora}</strong></span>
+      <span>🔎 Filtros: <strong>${filtrosActivos}</strong></span>
+    </div>
+    ${tableHTML}
+  `;
+  window.print();
+}
+
+function pBadge(v) {
+  if (v==='Alta') return '<span class="print-badge print-badge-green">Alta</span>';
+  if (v==='Media') return '<span class="print-badge print-badge-yellow">Media</span>';
+  if (v==='Baja') return '<span class="print-badge print-badge-red">Baja</span>';
+  return `<span class="print-badge print-badge-gray">${v||'—'}</span>`;
+}
+
+// ─────────────────────────── BULK SELECTION ───────────────────────────
+function toggleSelectEmpresa(id, checked) {
+  if (checked) selectedEmpresas.add(id); else selectedEmpresas.delete(id);
+  const row = document.getElementById('row-empresa-' + id);
+  if (row) row.classList.toggle('selected', checked);
+  const f = filters.empresas;
+  const visibleRows = data.empresas.filter(e => {
+    const q = f.search.toLowerCase();
+    return (!q || e.nombre.toLowerCase().includes(q) || e.sector.toLowerCase().includes(q) || e.localidad.toLowerCase().includes(q))
+      && (!f.sector || e.sector === f.sector) && (!f.activa || e.activa === f.activa);
+  });
+  const cbAll = document.getElementById('cb-all-empresas');
+  if (cbAll) cbAll.checked = visibleRows.length > 0 && visibleRows.every(e => selectedEmpresas.has(e.id));
+  updateBulkBar('empresas');
+}
+
+function toggleSelectAlumno(id, checked) {
+  if (checked) selectedAlumnos.add(id); else selectedAlumnos.delete(id);
+  const row = document.getElementById('row-alumno-' + id);
+  if (row) row.classList.toggle('selected', checked);
+  const f = filters.alumnos;
+  const visibleRows = data.alumnos.filter(a => {
+    const q = f.search.toLowerCase();
+    return (!q || a.nombre.toLowerCase().includes(q) || a.zona.toLowerCase().includes(q) || a.ciclo.toLowerCase().includes(q))
+      && (!f.ciclo || a.ciclo === f.ciclo) && (!f.ffeoe || a.ffeoe === f.ffeoe);
+  });
+  const cbAll = document.getElementById('cb-all-alumnos');
+  if (cbAll) cbAll.checked = visibleRows.length > 0 && visibleRows.every(a => selectedAlumnos.has(a.id));
+  updateBulkBar('alumnos');
+}
+
+function toggleAllEmpresas(checked) {
+  const f = filters.empresas;
+  const visibleRows = data.empresas.filter(e => {
+    const q = f.search.toLowerCase();
+    return (!q || e.nombre.toLowerCase().includes(q) || e.sector.toLowerCase().includes(q) || e.localidad.toLowerCase().includes(q))
+      && (!f.sector || e.sector === f.sector) && (!f.activa || e.activa === f.activa);
+  });
+  visibleRows.forEach(e => {
+    if (checked) selectedEmpresas.add(e.id); else selectedEmpresas.delete(e.id);
+    const row = document.getElementById('row-empresa-' + e.id);
+    if (row) { row.classList.toggle('selected', checked); const cb = row.querySelector('input[type=checkbox]'); if(cb) cb.checked = checked; }
+  });
+  updateBulkBar('empresas');
+}
+
+function toggleAllAlumnos(checked) {
+  const f = filters.alumnos;
+  const visibleRows = data.alumnos.filter(a => {
+    const q = f.search.toLowerCase();
+    return (!q || a.nombre.toLowerCase().includes(q) || a.zona.toLowerCase().includes(q) || a.ciclo.toLowerCase().includes(q))
+      && (!f.ciclo || a.ciclo === f.ciclo) && (!f.ffeoe || a.ffeoe === f.ffeoe);
+  });
+  visibleRows.forEach(a => {
+    if (checked) selectedAlumnos.add(a.id); else selectedAlumnos.delete(a.id);
+    const row = document.getElementById('row-alumno-' + a.id);
+    if (row) { row.classList.toggle('selected', checked); const cb = row.querySelector('input[type=checkbox]'); if(cb) cb.checked = checked; }
+  });
+  updateBulkBar('alumnos');
+}
+
+function updateBulkBar(type) {
+  const sel = type === 'empresas' ? selectedEmpresas : selectedAlumnos;
+  const bar = document.getElementById('bulk-bar-' + type);
+  const count = document.getElementById('bulk-count-' + type);
+  if (!bar) return;
+  if (sel.size > 0) {
+    bar.classList.add('visible');
+    const label = type === 'empresas'
+      ? `${sel.size} empresa${sel.size !== 1 ? 's' : ''} seleccionada${sel.size !== 1 ? 's' : ''}`
+      : `${sel.size} alumno${sel.size !== 1 ? 's' : ''} seleccionado${sel.size !== 1 ? 's' : ''}`;
+    count.textContent = label;
+  } else {
+    bar.classList.remove('visible');
+  }
+}
+
+function clearSelection(type) {
+  if (type === 'empresas') { selectedEmpresas.clear(); renderEmpresas(); }
+  if (type === 'alumnos') { selectedAlumnos.clear(); renderAlumnos(); }
+  updateBulkBar(type);
+}
+
+async function bulkDelete(type) {
+  const sel = type === 'empresas' ? selectedEmpresas : selectedAlumnos;
+  if (sel.size === 0) return;
+  const label = type === 'empresas' ? 'empresa' : 'alumno';
+  const plural = type === 'empresas' ? 'empresas' : 'alumnos';
+  if (!confirm(`¿Eliminar ${sel.size} ${sel.size === 1 ? label : plural}? Esta acción no se puede deshacer.`)) return;
+  setLoading(true);
+  try {
+    await sbDeleteMany(type, [...sel]);
+    if (type === 'empresas') { data.empresas = data.empresas.filter(e => !selectedEmpresas.has(e.id)); selectedEmpresas.clear(); renderEmpresas(); }
+    else { data.alumnos = data.alumnos.filter(a => !selectedAlumnos.has(a.id)); selectedAlumnos.clear(); renderAlumnos(); }
+    updateBulkBar(type); updateSidebar(); toast(`${sel.size} ${sel.size===1?label:plural} eliminado${type==='alumnos'?'s':'s'}`);
+  } catch(e) { toast('Error: '+e.message,'err'); } finally { setLoading(false); }
+}
+
+// ─────────────────────────── INIT ───────────────────────────
+(async () => {
+  await loadAll();
+  renderDashboard();
+  updateSidebar();
+})();
+</script>
+</body>
+</html>
